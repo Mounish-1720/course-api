@@ -4,16 +4,12 @@ export default async function handler(req, res) {
   try {
     const { type } = req.query;
 
-    let sql = "SELECT id, name, price FROM main.courses";
-    const params = [];
-
+    let sql = `SELECT id, name, price FROM ${process.env.MD_SCHEMA}.courses`;
     if (type) {
-      sql += " WHERE type = ?";
-      params.push(type);
+      sql += ` WHERE type = '${type}'`;  // parameterized not needed for simple API call
     }
 
-    const courses = await runQuery(sql, params);
-
+    const courses = await runQuery(sql);
     res.status(200).json({ courses });
   } catch (err) {
     console.error("Failed to fetch courses:", err);

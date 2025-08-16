@@ -1,50 +1,33 @@
-// api/payments.js
-import db from "./db.js";
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 export default async function handler(req, res) {
   try {
     if (req.method === "POST") {
-      const { courseId, userId, amount, status } = req.body;
+      const { amount, currency, receipt } = req.body;
 
-      if (!courseId || !userId || !amount || !status) {
-        return res.status(400).json({ error: "Missing payment fields" });
+      if (!amount || !currency || !receipt) {
+        return res.status(400).json({ error: "Missing required fields" });
       }
 
-      // Insert into payments table
-      await db.query(
-        `INSERT INTO payments (course_id, user_id, amount, status, created_at)
-         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-        [courseId, userId, amount, status]
-      );
+      const options = {
+        amount: amount * 100, // Razorpay expects amount in paise
+        currency,
+        receipt,
+      };
 
-      return res.status(201).json({ message: "Payment recorded successfully" });
+      const order = await razorpay.orders.create(options);
+
+      res.status(200).json({ order });
+    } else {
+      res.status(405).json({ error: "Method not allowed" });
     }
-
-    if (req.method === "GET") {
-      const { userId } = req.query;
-
-      if (!userId) {
-        return res.status(400).json({ error: "Missing userId" });
-      }
-
-      const payments = await db.query(
-        `SELECT id, course_id, amount, status, created_at 
-         FROM payments 
-         WHERE user_id = ? 
-         ORDER BY created_at DESC`,
-        [userId]
-      );
-
-      return res.status(200).json({payments});
-    }
-
-    res.setHeader("Allow", ["GET", "POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (err) {
-    console.error("Failed to process payment:", err);
-    res.status(500).json({
-      error: "Failed to process payment",
-      details: err.message,
-    });
+    console.error("Payment creation failed:", err);
+    res.status(500).json({ error: "Payment creation failed", details: err.message });
   }
 }

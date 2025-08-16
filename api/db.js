@@ -1,19 +1,26 @@
-import duckdb from 'duckdb-async';
+import fetch from "node-fetch";
 
-if (!process.env.MD_TOKEN) {
-  throw new Error('MD_TOKEN missing! Set it in .env or Vercel Environment Variables');
-}
+const MD_TOKEN = process.env.MD_TOKEN;
+const MD_DATABASE = process.env.MD_DATABASE;
+const MD_SCHEMA = process.env.MD_SCHEMA;
 
-console.log('MotherDuck token: Loaded ✅');
+export async function runQuery(sql) {
+  const url = `https://cloud.motherduck.com/sql?database=${MD_DATABASE}&schema=${MD_SCHEMA}`;
 
-const db = new duckdb.Database(`md:?motherduck_token=${process.env.MD_TOKEN}`);
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${MD_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query: sql }),
+  });
 
-export async function runQuery(sql, params = []) {
-  try {
-    const result = await db.all(sql, params);
-    return result;
-  } catch (err) {
-    console.error('DB Query Error:', err);
-    throw err;
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`MotherDuck API error: ${response.status} - ${text}`);
   }
+
+  const data = await response.json();
+  return data.results || [];
 }
