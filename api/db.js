@@ -1,23 +1,29 @@
 // api/db.js
-import duckdb from "duckdb";
+import fetch from "node-fetch";
 
-const db = new duckdb.Database(":memory:");
+const MOTHERDUCK_TOKEN = process.env.MOTHERDUCK_TOKEN;
+const MOTHERDUCK_DB = process.env.MOTHERDUCK_DB;
 
-db.run(
-  `ATTACH 'md:?motherduck_token=${process.env.MOTHERDUCK_TOKEN}' AS md`
-);
-
-if (process.env.MOTHERDUCK_DB) {
-  db.run(`USE md.${process.env.MOTHERDUCK_DB}`);
+if (!MOTHERDUCK_TOKEN || !MOTHERDUCK_DB) {
+  throw new Error("Environment variables MOTHERDUCK_TOKEN or MOTHERDUCK_DB are missing.");
 }
 
-function query(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
+async function query(sql) {
+  const response = await fetch(`https://cloud.motherduck.com/sql?db=${MOTHERDUCK_DB}`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${MOTHERDUCK_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ query: sql })
   });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`MotherDuck query failed: ${text}`);
+  }
+
+  return response.json();
 }
 
 export default { query };
