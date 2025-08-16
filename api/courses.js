@@ -13,6 +13,8 @@ export default async function handler(req, res) {
       params.push(type);
     }
 
+
+    
     const courses = await db.query(sql, params);
     res.status(200).json({ courses });
   } catch (err) {
