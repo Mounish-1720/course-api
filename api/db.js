@@ -1,9 +1,8 @@
-// api/db.js
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const MD_TOKEN = process.env.MD_TOKEN; // Your MotherDuck token
+const MD_TOKEN = process.env.MD_TOKEN;
 const MD_DATABASE = process.env.MD_DATABASE || 'my_db';
 
 export async function runQuery(sql) {
@@ -23,6 +22,5 @@ export async function runQuery(sql) {
     throw new Error(`HTTP error ${res.status}: ${await res.text()}`);
   }
 
-  const data = await res.json();
-  return data;
+  return await res.json();
 }
