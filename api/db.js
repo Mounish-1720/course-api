@@ -13,8 +13,24 @@ db.run(
   `ATTACH 'md:${process.env.MOTHERDUCK_DB}?motherduck_token=${process.env.MOTHERDUCK_TOKEN}' AS md`
 );
 
-// Use the attached DB
-db.run(`USE md`);
+
+db.run("USE md;", (err) => {
+  if (err) {
+    console.error("Failed to switch schema:", err);
+  } else {
+    console.log("✅ Connected to MotherDuck and using schema md");
+  }
+});
+
+
+db.all("SHOW TABLES;", (err, rows) => {
+  if (err) {
+    console.error("Error fetching tables:", err);
+  } else {
+    console.log("📋 Available tables:", rows);
+  }
+});
+
 
 // Query helper (uses prepared statements)
 function query(sql, params = []) {
