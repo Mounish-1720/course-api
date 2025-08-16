@@ -5,15 +5,15 @@ export default async function handler(req, res) {
   try {
     const { type } = req.query;
 
-    if (!type) {
-      return res.status(400).json({ error: "Missing course type" });
+    let sql = "SELECT id, name, price FROM courses";
+    let params = [];
+
+    if (type) {
+      sql += " WHERE type = ?";
+      params.push(type);
     }
 
-    const courses = await db.query(
-      "SELECT id, name, price FROM main.courses WHERE type = ?",
-      [type]
-    );
-
+    const courses = await db.query(sql, params);
     res.status(200).json({ courses });
   } catch (err) {
     console.error("Failed to fetch courses:", err);
