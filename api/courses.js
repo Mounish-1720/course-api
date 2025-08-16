@@ -1,16 +1,16 @@
-import { connectToMotherDuck } from "./db.js";
+import db from "./db.js";
 
 export default async function handler(req, res) {
   try {
-    const client = await connectToMotherDuck();
+
 
     const { type } = req.query; // frontend / backend / etc.
 
     // ✅ Query courses table
-    const result = await client.query(
-      "SELECT id, name, price FROM courses WHERE type = ?",
-      [type]
-    );
+   const result = await db.query(
+  "SELECT id, name, price FROM courses WHERE type = ?",
+  [type]
+);
 
     res.status(200).json(result);
   } catch (error) {
