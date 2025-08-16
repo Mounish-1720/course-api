@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 // api/db.js
 import duckdb from "duckdb";
 
@@ -29,8 +29,8 @@ function query(sql, params = []) {
   });
 }
 
-export default { query };
-=======
+
+
 import { createClient } from '@motherduck/motherduck-js';
 
 const client = createClient({
@@ -39,4 +39,4 @@ const client = createClient({
 });
 
 export default client;
->>>>>>> 2629c2e (first commit)
+
