@@ -3,14 +3,14 @@ import db from "./db.js";
 
 export default async function handler(req, res) {
   try {
-    const { type } = req.query; // e.g. /api/courses?type=frontend
+    const { type } = req.query;
 
     if (!type) {
       return res.status(400).json({ error: "Missing course type" });
     }
 
     const courses = await db.query(
-      "SELECT id, name, price FROM courses WHERE type = ?",
+      "SELECT id, name, price FROM main.courses WHERE type = ?",
       [type]
     );
 
