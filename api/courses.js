@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const rows = await db.query(
-  `SELECT id, name, price FROM my_db.main.courses WHERE type = ?`,
+  `SELECT id, name, price FROM main.courses WHERE type = ?`,
   [type]
 );
     res.status(200).json(rows);
