@@ -3,6 +3,7 @@ import duckdb from "duckdb";
 
 // Must use your MD token from env vars
 const db = new duckdb.Database(`md:?motherduck_token=${process.env.MD_TOKEN}`);
+console.log("MotherDuck token:", process.env.MD_TOKEN ? "Loaded ✅" : "Missing ❌");
 
 // Create a connection (sync)
 const connection = db.connect();
