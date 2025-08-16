@@ -1,3 +1,4 @@
+// api/courses.js
 import client from './db';
 
 export default async function handler(req, res) {
