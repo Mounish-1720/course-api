@@ -1,11 +1,11 @@
 // api/courses.js
-import db from "./db.js";
+import { runQuery } from "./db.js";
 
 export default async function handler(req, res) {
   try {
     const { type } = req.query;
 
-    let sql = "SELECT id, name, price FROM my_db.main.courses";
+    let sql = "SELECT id, name, price FROM main.courses";
     let params = [];
 
     if (type) {
@@ -13,9 +13,7 @@ export default async function handler(req, res) {
       params.push(type);
     }
 
-
-    
-    const courses = await db.query(sql, params);
+    const courses = await runQuery(sql, params);
     res.status(200).json({ courses });
   } catch (err) {
     console.error("Failed to fetch courses:", err);
