@@ -1,20 +1,23 @@
-import { getDB } from "./db.js";
+import client from './db';
 
 export default async function handler(req, res) {
-  const db = getDB();
+  const { type } = req.query; // 'frontend' or 'backend'
 
-  if (req.method === "GET") {
-    db.all("SELECT * FROM courses", (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
-      return res.status(200).json(rows);
-    });
-  } else if (req.method === "POST") {
-    const { name, price } = req.body;
-    db.run("INSERT INTO courses (name, price) VALUES (?, ?)", [name, price], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      return res.status(201).json({ message: "Course added successfully" });
-    });
-  } else {
-    res.status(405).json({ error: "Method not allowed" });
+  if (!type || (type !== 'frontend' && type !== 'backend')) {
+    return res.status(400).json({ error: 'Invalid course type' });
+  }
+
+  try {
+    const query = `
+      SELECT id, name, price
+      FROM courses
+      WHERE type='${type}'
+    `;
+
+    const result = await client.query(query);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('Error fetching courses:', err);
+    res.status(500).json({ error: 'Failed to fetch courses' });
   }
 }

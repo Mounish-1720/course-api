@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // api/db.js
 import duckdb from "duckdb";
 
@@ -29,3 +30,13 @@ function query(sql, params = []) {
 }
 
 export default { query };
+=======
+import { createClient } from '@motherduck/motherduck-js';
+
+const client = createClient({
+  token: process.env.MOTHERDUCK_TOKEN,   // Vercel env
+  database: process.env.MOTHERDUCK_DB,   // Vercel env
+});
+
+export default client;
+>>>>>>> 2629c2e (first commit)
