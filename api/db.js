@@ -1,9 +1,23 @@
 // api/db.js
-import { createClient } from '@motherduck/motherduck-js';
+import duckdb from "duckdb";
 
-const client = createClient({
-  token: process.env.MOTHERDUCK_TOKEN,
-  database: process.env.MOTHERDUCK_DB,
-});
+const db = new duckdb.Database(":memory:");
 
-export default client;
+db.run(
+  `ATTACH 'md:?motherduck_token=${process.env.MOTHERDUCK_TOKEN}' AS md`
+);
+
+if (process.env.MOTHERDUCK_DB) {
+  db.run(`USE md.${process.env.MOTHERDUCK_DB}`);
+}
+
+function query(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+}
+
+export default { query };
