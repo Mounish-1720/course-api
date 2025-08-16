@@ -1,4 +1,3 @@
-// api/courses.js
 import { runQuery } from "./db.js";
 
 export default async function handler(req, res) {
@@ -6,7 +5,7 @@ export default async function handler(req, res) {
     const { type } = req.query;
 
     let sql = "SELECT id, name, price FROM main.courses";
-    let params = [];
+    const params = [];
 
     if (type) {
       sql += " WHERE type = ?";
@@ -14,6 +13,7 @@ export default async function handler(req, res) {
     }
 
     const courses = await runQuery(sql, params);
+
     res.status(200).json({ courses });
   } catch (err) {
     console.error("Failed to fetch courses:", err);
