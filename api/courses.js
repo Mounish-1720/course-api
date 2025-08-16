@@ -1,4 +1,4 @@
-import { runQuery } from '../api/db';
+import { runQuery } from './db.js';
 
 export default async function handler(req, res) {
   try {
