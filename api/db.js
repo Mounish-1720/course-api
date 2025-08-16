@@ -1,18 +1,28 @@
 // api/db.js
-import { DuckDB } from 'duckdb-node-neo';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const db = new DuckDB({
-  token: process.env.MD_TOKEN,
-  database: process.env.MD_DATABASE || 'my_db', // use your env variable
-});
+const MD_TOKEN = process.env.MD_TOKEN; // Your MotherDuck token
+const MD_DATABASE = process.env.MD_DATABASE || 'my_db';
 
-// Export a helper function to run queries
 export async function runQuery(sql) {
-  try {
-    const result = await db.query(sql);
-    return result;
-  } catch (err) {
-    console.error('DB query failed:', err);
-    throw err;
+  const url = `https://cloud.motherduck.com/sql`; // MotherDuck HTTP endpoint
+  const body = { database: MD_DATABASE, query: sql };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${MD_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP error ${res.status}: ${await res.text()}`);
   }
+
+  const data = await res.json();
+  return data;
 }
