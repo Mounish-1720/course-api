@@ -16,17 +16,24 @@ db.run(
 // Use the attached DB
 db.run(`USE md`);
 
-// Query helper
+// Query helper (uses prepared statements)
 function query(sql, params = []) {
   return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) {
-        console.error("DB Query Error:", err);
-        reject(err);
-      } else {
-        resolve(rows);
-      }
-    });
+    try {
+      const stmt = db.prepare(sql);
+      stmt.all(params, (err, rows) => {
+        stmt.finalize();
+        if (err) {
+          console.error("DB Query Error:", err);
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    } catch (err) {
+      console.error("DB Prepare Error:", err);
+      reject(err);
+    }
   });
 }
 
