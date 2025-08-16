@@ -1,15 +1,18 @@
 // db.js
 import duckdb from "duckdb";
 
-// Connect to MotherDuck using token
+// Connect to MotherDuck using token (set in Vercel env vars)
 const db = new duckdb.Database(
   `md:?motherduck_token=${process.env.MD_TOKEN}`
 );
 
-// Wrap db.all in a promise so we can use async/await
+// Open a connection
+const connection = db.connect();
+
+// Promise wrapper for queries
 export async function runQuery(sql, params = []) {
   return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
+    connection.all(sql, params, (err, rows) => {
       if (err) {
         console.error("DB Query Error:", err);
         reject(err);
