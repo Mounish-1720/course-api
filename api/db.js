@@ -1,15 +1,31 @@
 // api/db.js
 import duckdb from "duckdb";
 
-// Use MotherDuck connection string
-const db = new duckdb.Database(`md:${process.env.MOTHERDUCK_DB}`);
+if (!process.env.MOTHERDUCK_TOKEN || !process.env.MOTHERDUCK_DB) {
+  throw new Error("Missing MOTHERDUCK_TOKEN or MOTHERDUCK_DB in env");
+}
 
-// Helper to run queries
+// Create in-memory DuckDB instance
+const db = new duckdb.Database(":memory:");
+
+// Attach to MotherDuck using token
+db.run(
+  `ATTACH 'md:${process.env.MOTHERDUCK_DB}?motherduck_token=${process.env.MOTHERDUCK_TOKEN}' AS md`
+);
+
+// Use the attached DB
+db.run(`USE md`);
+
+// Query helper
 function query(sql, params = []) {
   return new Promise((resolve, reject) => {
     db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
+      if (err) {
+        console.error("DB Query Error:", err);
+        reject(err);
+      } else {
+        resolve(rows);
+      }
     });
   });
 }
