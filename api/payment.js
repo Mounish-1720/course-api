@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         [userId]
       );
 
-      return res.status(200).json({ payments });
+      return res.status(200).json({payments});
     }
 
     res.setHeader("Allow", ["GET", "POST"]);
