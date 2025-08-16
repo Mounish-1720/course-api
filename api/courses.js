@@ -1,15 +1,20 @@
-import db from "./db.js";
+import { connectToMotherDuck } from "./db.js";
 
 export default async function handler(req, res) {
   try {
-    const { type } = req.query;
-    const rows = await db.query(
-      "SELECT id, name, price FROM main.courses WHERE type = ?",
+    const client = await connectToMotherDuck();
+
+    const { type } = req.query; // frontend / backend / etc.
+
+    // ✅ Query courses table
+    const result = await client.query(
+      "SELECT id, name, price FROM courses WHERE type = ?",
       [type]
     );
-    res.status(200).json(rows);
-  } catch (err) {
-    console.error("Error fetching courses:", err);
-    res.status(500).json({ error: "Failed to fetch courses", details: err.message });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Failed to fetch courses", details: error.message });
   }
 }
