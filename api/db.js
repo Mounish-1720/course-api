@@ -1,4 +1,5 @@
-import fetch from "node-fetch";
+// Remove this line
+// import fetch from "node-fetch";
 
 const MD_TOKEN = process.env.MD_TOKEN;
 const MD_DATABASE = process.env.MD_DATABASE;
