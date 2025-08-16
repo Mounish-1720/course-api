@@ -1,12 +1,31 @@
+// api/db.js
 import duckdb from "duckdb";
 
-let db = null;
+// Create a DuckDB connection in memory
+const db = new duckdb.Database(":memory:");
 
-export function getDB() {
-  if (!db) {
-    db = new duckdb.Database(":memory:"); // for testing
-    // If using MotherDuck, connect with token:
-    // db = new duckdb.Database("md:?motherduck_token=YOUR_TOKEN");
-  }
-  return db;
+// Attach to MotherDuck using your token (from Vercel env)
+db.run(
+  `ATTACH 'md:?motherduck_token=${process.env.MOTHERDUCK_TOKEN}' AS md`
+);
+
+// Select your MotherDuck database (from Vercel env)
+if (process.env.MOTHERDUCK_DB) {
+  db.run(`USE md.${process.env.MOTHERDUCK_DB}`);
 }
+
+// Helper to run queries safely
+function query(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) {
+        console.error("DB Query Error:", err);
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+}
+
+export default { query };
