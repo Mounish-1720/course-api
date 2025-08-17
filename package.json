@@ -17,6 +17,6 @@
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
     "razorpay": "^2.9.6",
-    "regions": ["fra1"]
+
   }
 }
