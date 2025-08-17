@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   try {
     const { type } = req.query;
 
-    let sql = 'SELECT id, name, price FROM main.courses';
+    let sql = 'SELECT id, name, price FROM courses';
     const params = [];
 
     if (type) {
