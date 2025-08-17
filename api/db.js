@@ -1,17 +1,23 @@
 // api/db.js
 import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
+import * as Node from '@duckdb/duckdb-wasm/dist/node';
 
-// Singleton DuckDB instance
+// Node-compatible bundle (no Web Worker needed)
+const bundle = new Node.AsyncNodeBundle();
+
 let dbInstance;
 let conn;
 
 export async function getDB() {
   if (!dbInstance) {
-    dbInstance = new AsyncDuckDB();
-    await dbInstance.instantiate(); // empty in-memory DB
+    // Create DuckDB instance
+    dbInstance = new AsyncDuckDB(bundle);
+    await dbInstance.instantiate();
+
+    // Connect to the database
     conn = await dbInstance.connect();
 
-    // Create courses table
+    // Create table if it doesn't exist
     await conn.query(`
       CREATE TABLE IF NOT EXISTS courses (
         id INTEGER,
@@ -21,7 +27,7 @@ export async function getDB() {
       )
     `);
 
-    // Insert sample data
+    // Optional: insert sample data (skip if your DB already has data)
     await conn.query(`
       INSERT INTO courses VALUES
       (1, 'React', 'frontend', 200),
@@ -33,8 +39,9 @@ export async function getDB() {
   return conn;
 }
 
+// Run a query
 export async function runQuery(sql) {
   const connection = await getDB();
-  const result = await connection.query(sql); // query runs on the connection
+  const result = await connection.query(sql);
   return result.toArray();
 }
