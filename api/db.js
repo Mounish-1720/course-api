@@ -1,47 +1,31 @@
 // api/db.js
-import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
-import * as Node from '@duckdb/duckdb-wasm/dist/node';
+import { AsyncDuckDB, NodeBundle } from '@duckdb/duckdb-wasm';
 
-// Node-compatible bundle (no Web Worker needed)
-const bundle = new Node.AsyncNodeBundle();
+// Create Node-compatible bundle
+const bundle = new NodeBundle();
 
-let dbInstance;
-let conn;
+// Single instance of DuckDB
+const db = new AsyncDuckDB(bundle);
 
-export async function getDB() {
-  if (!dbInstance) {
-    // Create DuckDB instance
-    dbInstance = new AsyncDuckDB(bundle);
-    await dbInstance.instantiate();
+let connection;
 
-    // Connect to the database
-    conn = await dbInstance.connect();
+async function getDB() {
+  if (!connection) {
+    // Instantiate and connect
+    await db.instantiate();
+    connection = await db.connect();
 
-    // Create table if it doesn't exist
-    await conn.query(`
-      CREATE TABLE IF NOT EXISTS courses (
-        id INTEGER,
-        name VARCHAR,
-        type VARCHAR,
-        price INTEGER
-      )
-    `);
-
-    // Optional: insert sample data (skip if your DB already has data)
-    await conn.query(`
-      INSERT INTO courses VALUES
-      (1, 'React', 'frontend', 200),
-      (2, 'Angular', 'frontend', 180),
-      (3, 'Node.js', 'backend', 300),
-      (4, 'Express', 'backend', 250)
-    `);
+    // Example: load your courses table here if needed
+    // await connection.query(`
+    //   CREATE TABLE IF NOT EXISTS courses (id INTEGER, name VARCHAR, type VARCHAR, price INTEGER)
+    // `);
   }
-  return conn;
+  return connection;
 }
 
-// Run a query
-export async function runQuery(sql) {
-  const connection = await getDB();
-  const result = await connection.query(sql);
-  return result.toArray();
+// Helper to run queries
+export async function runQuery(sql, params = []) {
+  const conn = await getDB();
+  const result = await conn.query(sql, params);
+  return result;
 }
