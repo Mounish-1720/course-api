@@ -1,7 +1,7 @@
 // api/db.js
 import fetch from 'node-fetch';
 
-const MD_TOKEN = process.env.MOTHERDUCK_TOKEN;
+const MD_TOKEN = process.env.MD_TOKEN;
 const MOTHERDUCK_API_URL = 'https://sql.motherduck.com/api/v1/query';
 
 // Helper to run queries using the MotherDuck HTTP API
@@ -18,7 +18,7 @@ export async function runQuery(sql, params = []) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MOTHERDUCK_TOKEN}`,
+        'Authorization': `Bearer ${MD_TOKEN}`,
         'Accept': 'application/json'
       },
       body: JSON.stringify(queryBody)
