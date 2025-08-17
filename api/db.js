@@ -1,5 +1,6 @@
 // api/db.js
-import { AsyncDuckDB, NodeBundle } from '@duckdb/duckdb-wasm';
+import pkg from '@duckdb/duckdb-wasm';
+const { AsyncDuckDB, NodeBundle } = pkg;
 
 // Create Node-compatible bundle
 const bundle = new NodeBundle();
@@ -11,14 +12,8 @@ let connection;
 
 async function getDB() {
   if (!connection) {
-    // Instantiate and connect
     await db.instantiate();
     connection = await db.connect();
-
-    // Example: load your courses table here if needed
-    // await connection.query(`
-    //   CREATE TABLE IF NOT EXISTS courses (id INTEGER, name VARCHAR, type VARCHAR, price INTEGER)
-    // `);
   }
   return connection;
 }
